@@ -1,15 +1,27 @@
+"use client";
+
 /**
- * Company detail layout: stats, timeline placeholder, and latest change slot.
+ * Company detail: timeline and latest change from GET /companies/:slug/timeline.
  */
 
 import Link from "next/link";
 import type { CompanyMeta } from "@/content/companies";
 import { CompanyLogo } from "@/components/shared/company-logo";
+import { ImportancePill } from "@/components/shared/importance-pill";
 import { StatusPill } from "@/components/shared/status-pill";
 import { PhButton } from "@/components/shared/ph-button";
-import { formatCategory } from "@/lib/companies/display";
+import {
+  EmptyState,
+  QueryError,
+  Shimmer,
+  ShimmerCards,
+} from "@/components/shared/query-state";
+import { formatCategory, formatWhen } from "@/lib/companies/display";
+import { useCompanyTimeline } from "@/lib/query/hooks";
 
 export function CompanyDetailView({ company }: { company: CompanyMeta }) {
+  const query = useCompanyTimeline(company.slug);
+
   return (
     <>
       <div className="ph-container -mt-2 pb-6">
@@ -18,107 +30,166 @@ export function CompanyDetailView({ company }: { company: CompanyMeta }) {
           <div className="min-w-[180px] flex-1">
             <span className="ph-eyebrow">{formatCategory(company.category)}</span>
             <h1 className="text-4xl font-extrabold tracking-tight">{company.name}</h1>
-            <p className="text-xs text-[var(--ph-muted)]">
-              Policy record · Timeline loads from the API when connected
-            </p>
+            <p className="text-xs text-[var(--ph-muted)]">Policy record</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <PhButton
-              href={`/companies/${company.slug}/changes/sample`}
-              variant="primary"
-            >
-              View sample report layout <span aria-hidden>↗</span>
-            </PhButton>
-            <PhButton href="/companies" variant="secondary">
-              All companies
-            </PhButton>
-          </div>
+          <PhButton href="/companies" variant="secondary">
+            All companies
+          </PhButton>
         </div>
       </div>
 
       <div className="ph-container pb-16">
-        <div className="mb-5 rounded-xl border border-[#f4e2b3] bg-[#fff8e8] px-4 py-3 text-[11px] text-[#926b26] dark:border-[#5a4827] dark:bg-[#2e2718] dark:text-[#efd08a]">
-          When no versions exist yet, this page shows an empty timeline instead of
-          invented policy text for {company.name}.
-        </div>
-
-        <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { label: "Latest stored version", value: "—", meta: "No data yet" },
-            { label: "Available versions", value: "0", meta: "From timeline API" },
-            { label: "Latest change", value: "—", meta: "When detected" },
-            { label: "Importance", value: <StatusPill variant="never" />, meta: "" },
-          ].map((stat) => (
-            <div key={stat.label} className="ph-card">
-              <div className="text-xs text-[var(--ph-muted)]">{stat.label}</div>
-              <div className="mt-3 text-2xl font-extrabold">{stat.value}</div>
-              {stat.meta && (
-                <div className="mt-1 text-[11px] text-[#8994a6]">{stat.meta}</div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="grid gap-5 lg:grid-cols-[1.5fr_0.8fr]">
-          <div className="space-y-5">
-            <div className="ph-card">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold">Latest policy summary</h3>
-                <StatusPill variant="never" />
-              </div>
-              <p className="text-sm text-[var(--ph-muted)]">
-                A summary derived from stored policy text appears here after the
-                first successful fetch.
-              </p>
-              <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#e3e8f0] bg-[#f9fbfd] px-3 py-3 text-[11px] text-[#7a8799] dark:border-[#2b3b50] dark:bg-[#101b2a]">
-                Policy source URL is shown when loaded from the API.
-              </div>
-            </div>
-            <div className="ph-card">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold">Policy version timeline</h3>
-                <span className="ph-pill ph-pill-neutral">No versions yet</span>
-              </div>
-              <div className="rounded-2xl border border-dashed border-[#cfd7e2] py-10 text-center text-sm text-[var(--ph-muted)]">
-                No stored versions for this company yet. Run daily tracking or
-                inspect sample data on WhatsApp after seeding.
-              </div>
-            </div>
+        {query.isPending ? (
+          <div className="space-y-4">
+            <ShimmerCards />
+            <Shimmer className="h-64" />
           </div>
-          <div className="space-y-5">
-            <div className="ph-card">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold">Latest change</h3>
-                <StatusPill variant="never" />
+        ) : query.isError ? (
+          <QueryError
+            message={query.error.message}
+            onRetry={() => {
+              void query.refetch();
+            }}
+          />
+        ) : (
+          <TimelineBody
+            slug={company.slug}
+            policyUrl={query.data.company.policyUrl}
+            versions={query.data.versions}
+            changes={query.data.changes}
+          />
+        )}
+      </div>
+    </>
+  );
+}
+
+function TimelineBody({
+  slug,
+  policyUrl,
+  versions,
+  changes,
+}: {
+  slug: string;
+  policyUrl: string;
+  versions: {
+    id: string;
+    fetchedAt: string;
+    isSample: boolean;
+    textLength: number;
+  }[];
+  changes: {
+    id: string;
+    detectedAt: string;
+    summary: string;
+    whatItMeansForYou: string;
+    importance: string;
+    isSample: boolean;
+  }[];
+}) {
+  const latest = changes[0];
+
+  return (
+    <>
+      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="ph-card">
+          <div className="text-xs text-[var(--ph-muted)]">Stored versions</div>
+          <div className="mt-3 text-2xl font-extrabold">{versions.length}</div>
+        </div>
+        <div className="ph-card">
+          <div className="text-xs text-[var(--ph-muted)]">Stored changes</div>
+          <div className="mt-3 text-2xl font-extrabold">{changes.length}</div>
+        </div>
+        <div className="ph-card">
+          <div className="text-xs text-[var(--ph-muted)]">Latest version</div>
+          <div className="mt-3 text-lg font-extrabold">
+            {versions[0] ? formatWhen(versions[0].fetchedAt) : "—"}
+          </div>
+        </div>
+        <div className="ph-card">
+          <div className="text-xs text-[var(--ph-muted)]">Latest importance</div>
+          <div className="mt-3">
+            {latest ? (
+              <ImportancePill importance={latest.importance} />
+            ) : (
+              <StatusPill variant="never" />
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[1.5fr_0.8fr]">
+        <div className="space-y-5">
+          <div className="ph-card">
+            <h3 className="text-lg font-bold">Policy source</h3>
+            <p className="mt-2 text-sm text-[var(--ph-muted)]">
+              Opens the page PolicyHawk fetches for this company.
+            </p>
+            <a
+              href={policyUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex rounded-xl border border-[var(--ph-line)] px-4 py-2 text-sm font-bold"
+            >
+              View original policy <span aria-hidden>↗</span>
+            </a>
+          </div>
+          <div className="ph-card">
+            <h3 className="mb-4 text-lg font-bold">Policy version timeline</h3>
+            {versions.length === 0 ? (
+              <EmptyState
+                title="No stored versions yet"
+                description="This company has not been checked, or the first fetch has not been saved."
+              />
+            ) : (
+              <div className="space-y-4">
+                {versions.map((version, index) => (
+                  <div key={version.id} className="grid grid-cols-[26px_1fr] gap-3">
+                    <div
+                      className={
+                        index === 0
+                          ? "mt-1 h-3 w-3 rounded-full bg-[var(--ph-blue)]"
+                          : "mt-1 h-3 w-3 rounded-full bg-[#dfe5ed] dark:bg-[#2a394d]"
+                      }
+                    />
+                    <div>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <strong className="text-sm">{formatWhen(version.fetchedAt)}</strong>
+                        {version.isSample ? <StatusPill variant="sample" /> : null}
+                      </div>
+                      <p className="mt-1 text-xs text-[var(--ph-muted)]">
+                        {version.textLength.toLocaleString()} characters
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm text-[var(--ph-muted)]">
-                Change summaries appear here when a new version differs from the
-                previous stored version.
-              </p>
+            )}
+          </div>
+        </div>
+        <div className="ph-card">
+          <h3 className="text-lg font-bold">Latest change</h3>
+          {latest ? (
+            <>
+              <p className="mt-3 text-sm text-[var(--ph-muted)]">{latest.summary}</p>
+              <p className="mt-2 text-xs text-[var(--ph-muted)]">{latest.whatItMeansForYou}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <ImportancePill importance={latest.importance} />
+                {latest.isSample ? <StatusPill variant="sample" /> : null}
+              </div>
               <Link
-                href={`/companies/${company.slug}/changes/sample`}
+                href={`/companies/${slug}/changes/${latest.id}`}
                 className="ph-link mt-4 text-xs"
               >
-                Preview change report layout <span aria-hidden>→</span>
+                Read full change report <span aria-hidden>→</span>
               </Link>
-            </div>
-            <div className="ph-card">
-              <h3 className="text-base font-bold">Company details</h3>
-              <div className="my-4 h-px bg-[var(--ph-line)]" />
-              <div className="space-y-3 text-xs">
-                <div>
-                  <span className="text-[10px] text-[var(--ph-muted)]">Category</span>
-                  <strong className="mt-1 block">{formatCategory(company.category)}</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-[var(--ph-muted)]">Tracking status</span>
-                  <div className="mt-1">
-                    <StatusPill variant="never" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </>
+          ) : (
+            <EmptyState
+              title="No changes yet"
+              description="A change appears when a new fetch differs from the previous stored version."
+            />
+          )}
         </div>
       </div>
     </>

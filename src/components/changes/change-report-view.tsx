@@ -11,7 +11,7 @@ import { CompanyLogo } from "@/components/shared/company-logo";
 import { ImportancePill } from "@/components/shared/importance-pill";
 import { PhButton } from "@/components/shared/ph-button";
 import { cn } from "@/lib/utils";
-import type { Importance } from "@/lib/api/types";
+import type { AiStatus, Importance } from "@/lib/api/types";
 
 export interface ChangeReportData {
   title: string;
@@ -27,6 +27,7 @@ export interface ChangeReportData {
   removedSpan: string;
   addedSpan: string;
   tags: string[];
+  aiStatus: AiStatus;
 }
 
 /** Renders the navy report header and diff panels from the prototype. */
@@ -68,6 +69,7 @@ export function ChangeReportView({
         {report.isSimulation
           ? "Simulated result from the test company. Not a verified change to a tracked company's live policy."
           : "Review the complete policy source before drawing conclusions. This summary is not legal advice."}
+        {report.aiStatus === "fallback" ? ` ${report.whatItMeans}` : ""}
       </div>
 
       <div className="mb-5 grid gap-4 md:grid-cols-2">

@@ -1,29 +1,82 @@
 /**
- * Browser-safe fetch wrapper for the PolicyHawk API (used after UI wiring).
+ * Axios client for public PolicyHawk API reads.
  */
 
-import type { CompaniesListResponse } from "./types";
+import axios, { type AxiosError } from "axios";
+import type {
+  ChangeDetailResponse,
+  CompaniesListResponse,
+  CompanyTimelineResponse,
+  LatestJob,
+  RecentChangesResponse,
+} from "./types";
 
 const DEFAULT_API = "http://localhost:4000/api";
 
-/** Resolves API base URL from env with a local dev fallback. */
+/** Resolves the public API base URL, without a trailing slash. */
 export function getApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? DEFAULT_API;
 }
 
-/** Performs a JSON GET against the Nest API. */
-export async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${getApiBaseUrl()}${path}`, {
-    headers: { Accept: "application/json" },
-    next: { revalidate: 0 },
-  });
-  if (!res.ok) {
-    throw new Error(`API ${path} failed: ${res.status}`);
+export const api = axios.create({
+  baseURL: getApiBaseUrl(),
+  headers: { Accept: "application/json" },
+});
+
+/** Turns an Axios failure into a message the query error panel can show. */
+export function toApiError(error: unknown): Error {
+  if (axios.isAxiosError(error)) {
+    const data = (error as AxiosError<{ message?: string | string[] }>).response
+      ?.data;
+    const raw = data?.message;
+    const message = Array.isArray(raw) ? raw.join(", ") : raw;
+    return new Error(
+      message ||
+        error.message ||
+        `Request failed (${error.response?.status ?? "network"})`,
+    );
   }
-  return res.json() as Promise<T>;
+  return error instanceof Error ? error : new Error("Request failed");
 }
 
-/** Lists active tracked companies (wired in directory/tracker milestone). */
-export async function fetchCompanies(): Promise<CompaniesListResponse> {
-  return apiGet<CompaniesListResponse>("/companies");
+/** Runs a GET and rethrows a readable Error. */
+async function get<T>(path: string): Promise<T> {
+  try {
+    const response = await api.get<T>(path);
+    return response.data;
+  } catch (error) {
+    throw toApiError(error);
+  }
+}
+
+/** Lists the 10 tracked companies. */
+export function fetchCompanies(): Promise<CompaniesListResponse> {
+  return get<CompaniesListResponse>("/companies");
+}
+
+/** Loads versions and changes for one company without policy bodies. */
+export function fetchCompanyTimeline(
+  slug: string,
+): Promise<CompanyTimelineResponse> {
+  return get<CompanyTimelineResponse>(`/companies/${slug}/timeline`);
+}
+
+/** Loads one change report, including capped excerpts. */
+export function fetchChangeDetail(
+  slug: string,
+  changeId: string,
+): Promise<ChangeDetailResponse> {
+  return get<ChangeDetailResponse>(
+    `/companies/${slug}/changes/${changeId}`,
+  );
+}
+
+/** Loads the newest changes across companies. */
+export function fetchRecentChanges(): Promise<RecentChangesResponse> {
+  return get<RecentChangesResponse>("/changes/recent?limit=10");
+}
+
+/** Loads the newest tracking job, or null when none has run. */
+export function fetchLatestJob(): Promise<LatestJob | null> {
+  return get<LatestJob | null>("/jobs/latest");
 }

@@ -2,17 +2,40 @@
  * Human-readable labels and styling helpers for company categories and fetch status.
  */
 
-import type { CompanyCategory } from "@/content/companies";
+import type { FetchStatus } from "@/lib/api/types";
+import type { StatusPillVariant } from "@/components/shared/status-pill";
 
 /** Maps API category slugs to directory chip labels. */
-export function formatCategory(category: CompanyCategory): string {
-  const labels: Record<CompanyCategory, string> = {
+export function formatCategory(category: string): string {
+  const labels: Record<string, string> = {
     messaging: "Messaging",
     workplace: "Workplace",
     social: "Social",
     streaming: "Streaming",
   };
-  return labels[category];
+  return labels[category] ?? category;
+}
+
+/** Maps list fields to the directory status pill. */
+export function companyCardStatus(company: {
+  lastFetchStatus: FetchStatus;
+  changeCount: number;
+}): StatusPillVariant {
+  if (company.lastFetchStatus === "failed") return "failed";
+  if (company.lastFetchStatus === "never") return "never";
+  if (company.changeCount > 0) return "changed";
+  return "unchanged";
+}
+
+/** Formats an API timestamp for cards and tables. */
+export function formatWhen(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 export type FetchStatusUi = "ok" | "failed" | "never";
