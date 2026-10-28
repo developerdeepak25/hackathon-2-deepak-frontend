@@ -1,26 +1,153 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --color-border: var(--border);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --radius-lg: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* PolicyHawk palette from the HTML prototype (light + dark). */
+:root {
+  --ph-ink: #172236;
+  --ph-muted: #697589;
+  --ph-line: #e4e9f0;
+  --ph-paper: #f6f8fb;
+  --ph-surface: #ffffff;
+  --ph-navy: #101a2c;
+  --ph-lime: #a6f36b;
+  --ph-lime-hover: #c7ff9e;
+  --ph-blue: #5269ef;
+  --ph-green: #19865d;
+  --ph-green-soft: #e6f7ee;
+  --ph-amber: #a66b13;
+  --ph-amber-soft: #fff3d7;
+  --ph-red: #ba4949;
+  --ph-red-soft: #ffeded;
+  --ph-radius: 22px;
+  --background: var(--ph-paper);
+  --foreground: var(--ph-ink);
+  --card: var(--ph-surface);
+  --card-foreground: var(--ph-ink);
+  --border: var(--ph-line);
+  --muted-foreground: var(--ph-muted);
+  --primary: var(--ph-navy);
+  --primary-foreground: #ffffff;
+  --accent: var(--ph-lime);
+  --accent-foreground: #162234;
+  --radius: 0.75rem;
+  --ring: #8798f4;
+}
+
+.dark {
+  --ph-ink: #e6edf7;
+  --ph-muted: #9baac0;
+  --ph-line: #29384d;
+  --ph-paper: #0a111e;
+  --ph-surface: #111c2b;
+  --ph-navy: #0b1422;
+  --ph-lime: #b7f47b;
+  --ph-lime-hover: #d0ffa5;
+  --ph-blue: #9aa8ff;
+  --ph-green: #6ad6a2;
+  --ph-green-soft: #15372f;
+  --ph-amber: #f4c66d;
+  --ph-amber-soft: #3b301d;
+  --ph-red: #ff9292;
+  --ph-red-soft: #40242b;
+  --background: var(--ph-paper);
+  --foreground: var(--ph-ink);
+  --card: var(--ph-surface);
+  --card-foreground: var(--ph-ink);
+  --border: var(--ph-line);
+  --muted-foreground: var(--ph-muted);
+  --primary: var(--ph-lime);
+  --primary-foreground: #17211a;
+  --accent: var(--ph-lime);
+  --accent-foreground: #17211a;
+  --ring: #556677;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-[var(--ph-paper)] text-[var(--ph-ink)] text-sm leading-relaxed antialiased;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .ph-container {
+    @apply mx-auto w-full max-w-[1160px] px-6 md:px-8;
+  }
+  .ph-section {
+    @apply py-16 md:py-[78px];
+  }
+  .ph-section-tight {
+    @apply py-10 md:py-12;
+  }
+  .ph-card {
+    @apply rounded-[var(--ph-radius)] border border-[var(--ph-line)] bg-[var(--ph-surface)] p-5 shadow-sm;
+  }
+  .ph-eyebrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#4f607a] dark:text-[#a8b7cc];
+  }
+  .ph-eyebrow-dot {
+    @apply h-[7px] w-[7px] rounded-full bg-[#75c945] shadow-[0_0_0_4px_rgba(166,243,107,0.25)];
+  }
+  .ph-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap;
+  }
+  .ph-pill-neutral {
+    @apply bg-[#f0f3f7] text-[#68758a] dark:bg-[#202c3e] dark:text-[#b7c3d5];
+  }
+  .ph-pill-green {
+    @apply bg-[var(--ph-green-soft)] text-[var(--ph-green)];
+  }
+  .ph-pill-amber {
+    @apply bg-[var(--ph-amber-soft)] text-[var(--ph-amber)];
+  }
+  .ph-pill-red {
+    @apply bg-[var(--ph-red-soft)] text-[var(--ph-red)];
+  }
+  .ph-pill-blue {
+    @apply bg-[#edf0ff] text-[#4a5fdb] dark:bg-[#252e57] dark:text-[#b3bcff];
+  }
+  .ph-pill-dark {
+    @apply bg-[#26354a] text-white;
+  }
+  .ph-link {
+    @apply inline-flex items-center gap-1.5 font-bold text-[#4057dc] hover:text-[#263ab7] dark:text-[#a9b6ff] dark:hover:text-[#d0d6ff];
+  }
+  .ph-page-in {
+    animation: phPageIn 0.25s ease;
+  }
+}
+
+@keyframes phPageIn {
+  from {
+    opacity: 0.2;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
