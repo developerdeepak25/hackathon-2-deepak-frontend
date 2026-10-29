@@ -20,9 +20,10 @@ export function HeroSection() {
             <span className="ph-eyebrow-dot" />
             Privacy policy change tracker
           </span>
-          <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight md:text-6xl lg:text-[70px]">
-            Know when the rules around your{" "}
-            <span className="text-[var(--ph-lime)]">data change.</span>
+          <h1 className="mt-4 max-w-[620px] text-4xl font-extrabold leading-[0.95] tracking-[-0.04em] md:text-6xl lg:text-[70px]">
+            <span className="block">Know when</span>
+            <span className="block">the rules around your</span>
+            <span className="block text-[var(--ph-lime)]">data change.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-[#b3bfd0] md:text-lg">
             Privacy policies change quietly. PolicyHawk tracks versions,
@@ -179,7 +180,7 @@ export function ProblemSection() {
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {items.map((item) => (
-            <div key={item.title} className="ph-card">
+            <div key={item.title} className="ph-card h-full">
               <FeatureIcon>{item.icon}</FeatureIcon>
               <h3 className="text-lg font-bold">{item.title}</h3>
               <p className="mt-2 text-sm text-[var(--ph-muted)]">{item.text}</p>
@@ -231,7 +232,7 @@ export function SolutionSection() {
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {items.map((item) => (
-            <div key={item.title} className="ph-card">
+            <div key={item.title} className="ph-card h-full">
               <FeatureIcon>{item.icon}</FeatureIcon>
               <h3 className="text-lg font-bold">{item.title}</h3>
               <p className="mt-2 text-sm text-[var(--ph-muted)]">{item.text}</p>
