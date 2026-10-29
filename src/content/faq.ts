@@ -31,12 +31,12 @@ export const FAQ_ITEMS: { question: string; answer: string }[] = [
   {
     question: "What is sample data?",
     answer:
-      "Prepared or simulated records used to demonstrate timelines and change reports. The UI labels them as sample or simulation.",
+      "Prepared examples stored with the companies so you can open a full change report before a live check finds anything. The UI labels each one Sample example. They are not claims about the company's real policy.",
   },
   {
-    question: "What does the test-company demo do?",
+    question: "What does the demo check do?",
     answer:
-      "It runs a simulated check against predefined prior policy text and a live fetch, using the same comparison path as real tracking. It does not claim a real company changed its policy.",
+      "It fetches WhatsApp's current privacy policy and compares it with a hardcoded earlier copy that includes extra sample clauses. The result stays on the demo screen and is not saved.",
   },
   {
     question: "Can I add another company?",

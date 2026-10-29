@@ -84,6 +84,8 @@ function TimelineBody({
     summary: string;
     whatItMeansForYou: string;
     importance: string;
+    tags: string[];
+    changedSections: string[];
     isSample: boolean;
   }[];
 }) {
@@ -168,27 +170,42 @@ function TimelineBody({
           </div>
         </div>
         <div className="ph-card">
-          <h3 className="text-lg font-bold">Latest change</h3>
-          {latest ? (
-            <>
-              <p className="mt-3 text-sm text-[var(--ph-muted)]">{latest.summary}</p>
-              <p className="mt-2 text-xs text-[var(--ph-muted)]">{latest.whatItMeansForYou}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <ImportancePill importance={latest.importance} />
-                {latest.isSample ? <StatusPill variant="sample" /> : null}
-              </div>
-              <Link
-                href={`/companies/${slug}/changes/${latest.id}`}
-                className="ph-link mt-4 text-xs"
-              >
-                Read full change report <span aria-hidden>→</span>
-              </Link>
-            </>
-          ) : (
+          <h3 className="text-lg font-bold">Change examples</h3>
+          {changes.length === 0 ? (
             <EmptyState
               title="No changes yet"
               description="A change appears when a new fetch differs from the previous stored version."
             />
+          ) : (
+            <div className="mt-4 space-y-4">
+              {changes.map((change) => (
+                <div key={change.id} className="rounded-xl border border-[var(--ph-line)] p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ImportancePill importance={change.importance} />
+                    {change.isSample ? <StatusPill variant="sample" /> : null}
+                  </div>
+                  <p className="mt-2 text-sm">{change.summary}</p>
+                  <p className="mt-2 text-xs text-[var(--ph-muted)]">{change.whatItMeansForYou}</p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {change.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex rounded-md bg-[#f0f3f8] px-2 py-1 text-[10px] font-bold text-[#68758a] dark:bg-[#202c3e] dark:text-[#b8c5d7]"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[10px] text-[#8994a6]">{formatWhen(change.detectedAt)}</p>
+                  <Link
+                    href={`/companies/${slug}/changes/${change.id}`}
+                    className="ph-link mt-3 text-xs"
+                  >
+                    Read full change report <span aria-hidden>→</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

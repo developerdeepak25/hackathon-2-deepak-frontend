@@ -18,6 +18,7 @@ export interface CompanyListEntry {
   lastFetchStatus: FetchStatus;
   todayChangeCount: number;
   changeCount: number;
+  hasSampleChange: boolean;
 }
 
 export interface CompaniesListResponse {
@@ -79,6 +80,8 @@ export interface RecentChange {
   detectedAt: string;
   summary: string;
   importance: Importance;
+  tags: string[];
+  whatItMeansForYou: string;
   isSample: boolean;
   aiStatus: AiStatus;
 }

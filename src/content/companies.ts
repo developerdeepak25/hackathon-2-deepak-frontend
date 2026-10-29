@@ -94,21 +94,7 @@ export const MVP_COMPANIES: CompanyMeta[] = [
   },
 ];
 
-/** Demo-only company slug; not part of the daily tracked list. */
-export const TEST_COMPANY_SLUG = "test-company";
-
-export const TEST_COMPANY: CompanyMeta = {
-  slug: TEST_COMPANY_SLUG,
-  name: "PolicyHawk Test Company",
-  abbr: "PH",
-  category: "workplace",
-  logo: "test",
-};
-
-/** Resolves MVP or test company metadata by slug for route pages. */
+/** Resolves MVP company metadata by slug for route pages. */
 export function getCompanyMeta(slug: string): CompanyMeta | undefined {
-  if (slug === TEST_COMPANY_SLUG) {
-    return TEST_COMPANY;
-  }
   return MVP_COMPANIES.find((c) => c.slug === slug);
 }

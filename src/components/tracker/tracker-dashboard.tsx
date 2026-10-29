@@ -96,28 +96,49 @@ export function TrackerDashboard() {
         {changes.length === 0 ? (
           <EmptyState
             title="No change reports yet"
-            description="A report appears after a daily check finds a difference, or after the test-company demo runs."
+            description="Sample examples are labeled. A live report appears after a daily check finds a difference."
           />
         ) : (
           <div className="space-y-3">
-            {changes.map((change) => (
+            {changes.map((change) => {
+              const meta = getCompanyMeta(change.companySlug);
+              return (
               <Link
                 key={change.id}
                 href={`/companies/${change.companySlug}/changes/${change.id}`}
-                className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-[var(--ph-line)] px-4 py-3 hover:bg-[#fbfcfe] dark:hover:bg-[#152338]"
+                className="block rounded-xl border border-[var(--ph-line)] px-4 py-3 hover:bg-[#fbfcfe] dark:hover:bg-[#152338]"
               >
-                <div>
-                  <strong className="text-sm">{change.companyName}</strong>
-                  <p className="mt-1 text-xs text-[var(--ph-muted)]">{change.summary}</p>
-                  <p className="mt-1 text-[10px] text-[#8994a6]">
-                    {formatWhen(change.detectedAt)}
-                    {change.isSample ? " · Sample" : ""}
-                    {change.aiStatus === "fallback" ? " · Summary unavailable" : ""}
-                  </p>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <CompanyLogo
+                      abbr={meta?.abbr ?? change.companyName.slice(0, 2)}
+                      variant={meta?.logo ?? "x"}
+                      size="sm"
+                    />
+                    <strong className="text-sm">{change.companyName}</strong>
+                    {change.isSample ? <StatusPill variant="sample" /> : null}
+                  </div>
+                  <ImportancePill importance={change.importance} />
                 </div>
-                <ImportancePill importance={change.importance} />
+                <p className="mt-2 text-sm">{change.summary}</p>
+                <p className="mt-1 text-xs text-[var(--ph-muted)]">{change.whatItMeansForYou}</p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {change.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex rounded-md bg-[#f0f3f8] px-2 py-1 text-[10px] font-bold text-[#68758a] dark:bg-[#202c3e] dark:text-[#b8c5d7]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-2 text-[10px] text-[#8994a6]">
+                  {formatWhen(change.detectedAt)}
+                  {change.aiStatus === "fallback" ? " · Summary unavailable" : ""}
+                </p>
               </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

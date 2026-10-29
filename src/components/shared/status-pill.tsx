@@ -15,7 +15,7 @@ export type StatusPillVariant =
 
 const config: Record<StatusPillVariant, { label: string; className: string }> =
   {
-    sample: { label: "Sample history", className: "ph-pill-blue" },
+    sample: { label: "Sample example", className: "ph-pill-blue" },
     changed: { label: "Change detected", className: "ph-pill-amber" },
     unchanged: { label: "Unchanged", className: "ph-pill-green" },
     failed: { label: "Check failed", className: "ph-pill-red" },

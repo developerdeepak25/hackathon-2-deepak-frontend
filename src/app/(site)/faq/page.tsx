@@ -19,7 +19,7 @@ export default function FaqPage() {
         <div className="ph-section-tight text-center">
           <h3 className="text-lg font-bold">Want to see how it works?</h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-[var(--ph-muted)]">
-            Run the test-company simulation and inspect the generated change report.
+            Run the demo, or open a company marked Sample example to read a full change report.
           </p>
           <PhButton href="/demo" variant="primary" className="mt-4">
             Try the demo <span aria-hidden>→</span>
