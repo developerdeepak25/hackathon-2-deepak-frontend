@@ -12,7 +12,7 @@ import { ImportancePill } from "@/components/shared/importance-pill";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-[var(--ph-navy)] py-14 text-white md:py-[70px]">
+    <section className="ph-field-guide-hero relative overflow-hidden bg-[var(--ph-navy)] py-14 text-white md:py-[70px]">
       <div className="pointer-events-none absolute -right-40 -top-56 h-[650px] w-[650px] rounded-full bg-[radial-gradient(circle,rgba(96,130,218,0.19),transparent_68%)]" />
       <div className="ph-container relative z-10 grid items-center gap-10 md:grid-cols-2 md:gap-12">
         <div>
@@ -52,9 +52,9 @@ export function HeroSection() {
             One place to inspect policy changes across 10 companies
           </p>
         </div>
-        <div className="relative mx-auto w-full max-w-lg rotate-1">
-          <div className="overflow-hidden rounded-[21px] border border-white/15 bg-[var(--ph-surface)] text-[var(--ph-ink)] shadow-2xl">
-            <div className="flex items-center gap-1.5 border-b border-[var(--ph-line)] bg-[#fcfdff] px-4 py-3 dark:bg-[#0e1725]">
+        <div className="ph-hero-visual relative mx-auto w-full max-w-lg rotate-1">
+          <div className="ph-hero-preview overflow-hidden rounded-[21px] border border-white/15 bg-[var(--ph-surface)] text-[var(--ph-ink)] shadow-2xl">
+            <div className="ph-hero-window-bar flex items-center gap-1.5 border-b border-[var(--ph-line)] bg-[#fcfdff] px-4 py-3 dark:bg-[#0e1725]">
               <i className="h-1.5 w-1.5 rounded-full bg-[#d2d9e2]" />
               <i className="h-1.5 w-1.5 rounded-full bg-[#d2d9e2]" />
               <i className="h-1.5 w-1.5 rounded-full bg-[#d2d9e2]" />

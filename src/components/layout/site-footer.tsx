@@ -7,7 +7,7 @@ import { BrandMark } from "@/components/icons/brand-mark";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-[#253247] bg-[#0d1728] px-4 py-10 text-white dark:bg-[#070d17]">
+    <footer className="ph-site-footer mt-auto border-t border-[#253247] bg-[#0d1728] px-4 py-10 text-white dark:bg-[#070d17]">
       <div className="ph-container">
         <div className="flex flex-col justify-between gap-10 pb-8 md:flex-row">
           <div className="max-w-sm">
