@@ -5,11 +5,11 @@
  */
 
 import { useState } from "react";
-import Link from "next/link";
 import type { CompanyMeta } from "@/content/companies";
+import { ChangeTags } from "@/components/shared/change-tags";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { ImportancePill } from "@/components/shared/importance-pill";
-import { PhButton } from "@/components/shared/ph-button";
+import { formatWhen } from "@/lib/companies/display";
 import { cn } from "@/lib/utils";
 import type { AiStatus, Importance } from "@/lib/api/types";
 
@@ -27,6 +27,8 @@ export interface ChangeReportData {
   removedSpan: string;
   addedSpan: string;
   tags: string[];
+  changedSections: string[];
+  detectedAt: string | null;
   aiStatus: AiStatus;
 }
 
@@ -44,6 +46,7 @@ export function toChangeReport(input: {
   tags: string[];
   changedSections: string[];
   aiStatus: AiStatus;
+  detectedAt?: string | null;
   fromLabel?: string;
   toLabel?: string;
 }): ChangeReportData {
@@ -54,13 +57,15 @@ export function toChangeReport(input: {
     importance: input.importance,
     isSample: input.isSample,
     isSimulation: input.isSimulation,
-    fromLabel: input.fromLabel ?? "Previous",
-    toLabel: input.toLabel ?? "Current",
+    fromLabel: input.fromLabel ?? "Previous version",
+    toLabel: input.toLabel ?? "Current version",
     oldExcerpt: input.fromExcerpt,
     newExcerpt: input.toExcerpt,
     removedSpan: input.removedSpan,
     addedSpan: input.addedSpan,
-    tags: input.tags.length > 0 ? input.tags : input.changedSections,
+    tags: input.tags,
+    changedSections: input.changedSections,
+    detectedAt: input.detectedAt ?? null,
     aiStatus: input.aiStatus,
   };
 }
@@ -69,54 +74,53 @@ export function toChangeReport(input: {
 export function ChangeReportView({
   company,
   report,
-  backHref,
   embedded = false,
 }: {
   company: CompanyMeta;
   report: ChangeReportData;
-  backHref: string;
   embedded?: boolean;
 }) {
   const [stacked, setStacked] = useState(false);
+  const labels = [
+    ...report.tags,
+    ...report.changedSections.filter((section) => !report.tags.includes(section)),
+  ];
 
   return (
     <div className={embedded ? undefined : "ph-container pb-16"}>
-      <div className="relative mb-5 overflow-hidden rounded-[22px] bg-[var(--ph-navy)] px-6 py-7 text-white dark:border dark:border-[#2b3b50] dark:bg-[#111d2f]">
-        <div className="relative z-10">
+      <div className="relative mb-5 overflow-hidden rounded-[22px] bg-[var(--ph-navy)] px-6 py-6 text-white dark:border dark:border-[#2b3b50] dark:bg-[#111d2f]">
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <CompanyLogo abbr={company.abbr} variant={company.logo} size="sm" />
-            <span className="text-xs font-bold text-[#c0cbd9]">{company.name}</span>
+            <span className="text-sm font-bold text-white">{company.name}</span>
             <span className="ph-pill ph-pill-blue">
-              {report.isSimulation ? "Simulation result" : report.isSample ? "Sample report" : "Change report"}
+              {report.isSimulation ? "Simulation result" : report.isSample ? "Sample example" : "Change report"}
             </span>
           </div>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight">{report.title}</h1>
-          <p className="mt-2 max-w-2xl text-sm text-[#bac5d5]">{report.summary}</p>
-          <div className="mt-5 flex flex-wrap items-center gap-3 text-[11px] text-[#aeb9c9]">
-            <span>
-              {report.fromLabel} → {report.toLabel}
-            </span>
-            <span>·</span>
-            <ImportancePill importance={report.importance} />
-          </div>
+          <ImportancePill importance={report.importance} />
         </div>
+        <ChangeTags tags={labels} onDark className="relative z-10 mt-3" />
+        {report.detectedAt ? (
+          <p className="relative z-10 mt-3 text-xs text-[#aeb9c9]">
+            Detected {formatWhen(report.detectedAt)}
+          </p>
+        ) : null}
       </div>
 
-      <div className="mb-5 rounded-xl border border-[#f4e2b3] bg-[#fff8e8] px-4 py-3 text-[11px] text-[#926b26] dark:border-[#5a4827] dark:bg-[#2e2718] dark:text-[#efd08a]">
-        {report.isSimulation
-          ? "Simulated result from the test company. Not a verified change to a tracked company's live policy."
-          : "Review the complete policy source before drawing conclusions. This summary is not legal advice."}
-        {report.aiStatus === "fallback" ? ` ${report.whatItMeans}` : ""}
-      </div>
+      {report.aiStatus === "fallback" ? (
+        <div className="mb-5 rounded-xl border border-[#f4e2b3] bg-[#fff8e8] px-4 py-3 text-[11px] text-[#926b26] dark:border-[#5a4827] dark:bg-[#2e2718] dark:text-[#efd08a]">
+          The model did not write this summary.
+        </div>
+      ) : null}
 
       <div className="mb-5 grid gap-4 md:grid-cols-2">
         <div className="ph-card">
-          <h3 className="text-base font-bold">What changed?</h3>
-          <p className="mt-2 text-sm text-[var(--ph-muted)]">{report.summary}</p>
+          <h2 className="text-sm font-bold">What changed?</h2>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--ph-ink)]">{report.summary}</p>
         </div>
         <div className="ph-card">
-          <h3 className="text-base font-bold">Why it may matter</h3>
-          <p className="mt-2 text-sm text-[var(--ph-muted)]">{report.whatItMeans}</p>
+          <h2 className="text-sm font-bold">Why it may matter</h2>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--ph-muted)]">{report.whatItMeans}</p>
         </div>
       </div>
 
@@ -125,10 +129,9 @@ export function ChangeReportView({
           <div>
             <h3 className="text-lg font-bold">Policy text comparison</h3>
             <p className="text-xs text-[var(--ph-muted)]">
-              Excerpts around changed spans — not the full policy document.
+              Sentences that differ. Unchanged policy text is left out.
             </p>
           </div>
-          <span className="ph-pill ph-pill-blue">Excerpt view</span>
         </div>
         <div className="mb-4 flex gap-2">
           <button
@@ -162,35 +165,18 @@ export function ChangeReportView({
             stacked ? "grid-cols-1" : "md:grid-cols-2",
           )}
         >
-          <DiffPanel label="Previous version" version={report.fromLabel} body={report.oldExcerpt} removed={report.removedSpan} />
-          <DiffPanel label="New version" version={report.toLabel} body={report.newExcerpt} added={report.addedSpan} />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="ph-card">
-          <h3 className="text-base font-bold">Change categories</h3>
-          <div className="mt-3 flex flex-wrap gap-1">
-            {report.tags.map((t) => (
-              <span
-                key={t}
-                className="inline-flex rounded-md bg-[#f0f3f8] px-2 py-1.5 text-[10px] font-bold text-[#68758a] dark:bg-[#202c3e] dark:text-[#b8c5d7]"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="ph-card">
-          <h3 className="text-base font-bold">Report details</h3>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <PhButton href={backHref} variant="secondary">
-              Back
-            </PhButton>
-            <PhButton href="/companies" variant="secondary">
-              All companies
-            </PhButton>
-          </div>
+          <DiffPanel
+            label={report.fromLabel}
+            text={report.removedSpan}
+            tone="removed"
+            empty="Nothing was removed."
+          />
+          <DiffPanel
+            label={report.toLabel}
+            text={report.addedSpan}
+            tone="added"
+            empty="Nothing was added."
+          />
         </div>
       </div>
     </div>
@@ -199,42 +185,42 @@ export function ChangeReportView({
 
 function DiffPanel({
   label,
-  version,
-  body,
-  removed,
-  added,
+  text,
+  tone,
+  empty,
 }: {
   label: string;
-  version: string;
-  body: string;
-  removed?: string;
-  added?: string;
+  text: string;
+  tone: "removed" | "added";
+  empty: string;
 }) {
+  const sentences = text
+    .split(/\n\n+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--ph-line)] bg-[var(--ph-surface)]">
-      <div className="flex items-center justify-between border-b border-[var(--ph-line)] bg-[#f8fafc] px-4 py-3 text-[11px] font-extrabold dark:bg-[#0e1827]">
-        <span>{label.toUpperCase()}</span>
-        <span className="ph-pill ph-pill-neutral">{version}</span>
+      <div className="border-b border-[var(--ph-line)] bg-[#f8fafc] px-4 py-3 text-[11px] font-extrabold dark:bg-[#0e1827]">
+        {label}
       </div>
-      <div className="min-h-[120px] p-4 font-mono text-[11px] leading-loose break-words text-[#526078] dark:text-[#b8c5d7]">
-        <span>{body}</span>
-        {removed && (
-          <>
-            <br />
-            <br />
-            <span className="rounded bg-[#ffe5e5] px-1 text-[#a33c3c] dark:bg-[#4a2931] dark:text-[#ffb5b5]">
-              {removed}
-            </span>
-          </>
-        )}
-        {added && (
-          <>
-            <br />
-            <br />
-            <span className="rounded bg-[#dbf8e3] px-1 text-[#18764b] dark:bg-[#174331] dark:text-[#a1f0c2]">
-              {added}
-            </span>
-          </>
+      <div className="max-h-72 space-y-2 overflow-y-auto p-4 text-[13px] leading-relaxed break-words text-[#526078] dark:text-[#b8c5d7]">
+        {sentences.length > 0 ? (
+          sentences.map((sentence) => (
+            <p
+              key={sentence}
+              className={cn(
+                "rounded-lg px-3 py-2",
+                tone === "removed"
+                  ? "bg-[#ffe5e5] text-[#a33c3c] dark:bg-[#4a2931] dark:text-[#ffb5b5]"
+                  : "bg-[#dbf8e3] text-[#18764b] dark:bg-[#174331] dark:text-[#a1f0c2]",
+              )}
+            >
+              {sentence}
+            </p>
+          ))
+        ) : (
+          <p className="text-[var(--ph-muted)]">{empty}</p>
         )}
       </div>
     </div>

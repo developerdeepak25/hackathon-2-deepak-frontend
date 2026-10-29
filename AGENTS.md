@@ -1,3 +1,5 @@
+PolicyHawk product behavior, API contracts, and decisions already made are in [../docs/project-context.md](../docs/project-context.md). Read that before changing the demo, samples, reports, or Gemini setup.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know

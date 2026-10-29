@@ -5,6 +5,28 @@
 import type { FetchStatus } from "@/lib/api/types";
 import type { StatusPillVariant } from "@/components/shared/status-pill";
 
+const CHANGE_TAG_LABELS: Record<string, string> = {
+  "ai-training": "AI training",
+  "data-sharing": "Data sharing",
+  "data-selling": "Data selling",
+  retention: "Retention",
+  deletion: "Deletion",
+  other: "Other",
+};
+
+/** Maps a change tag slug to a short label. Phrases that are already readable stay as written. */
+export function formatChangeTag(tag: string): string {
+  if (CHANGE_TAG_LABELS[tag]) {
+    return CHANGE_TAG_LABELS[tag];
+  }
+  if (!/[-_]/.test(tag)) {
+    return tag;
+  }
+  return tag
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 /** Maps API category slugs to directory chip labels. */
 export function formatCategory(category: string): string {
   const labels: Record<string, string> = {

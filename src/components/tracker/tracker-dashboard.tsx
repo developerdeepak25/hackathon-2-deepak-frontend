@@ -8,6 +8,7 @@ import Link from "next/link";
 import { AlertTriangle, Clock, GitCompare, Shield } from "lucide-react";
 import { getCompanyMeta } from "@/content/companies";
 import { CompanyLogo } from "@/components/shared/company-logo";
+import { ChangeTags } from "@/components/shared/change-tags";
 import { ImportancePill } from "@/components/shared/importance-pill";
 import { StatusPill } from "@/components/shared/status-pill";
 import {
@@ -120,18 +121,9 @@ export function TrackerDashboard() {
                   </div>
                   <ImportancePill importance={change.importance} />
                 </div>
+                <ChangeTags tags={change.tags} className="mt-2" />
                 <p className="mt-2 text-sm">{change.summary}</p>
                 <p className="mt-1 text-xs text-[var(--ph-muted)]">{change.whatItMeansForYou}</p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {change.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex rounded-md bg-[#f0f3f8] px-2 py-1 text-[10px] font-bold text-[#68758a] dark:bg-[#202c3e] dark:text-[#b8c5d7]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
                 <p className="mt-2 text-[10px] text-[#8994a6]">
                   {formatWhen(change.detectedAt)}
                   {change.aiStatus === "fallback" ? " · Summary unavailable" : ""}

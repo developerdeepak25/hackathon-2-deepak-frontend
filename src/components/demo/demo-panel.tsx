@@ -19,13 +19,6 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 const WHATSAPP = getCompanyMeta("whatsapp");
 
-const SAMPLE_CLAUSES = [
-  "Message content, including photos and voice notes, may be used to train artificial intelligence models.",
-  "Personal information, including phone number, contacts, and usage data, may be sold to advertising partners.",
-  "After an account is deleted, messages and contacts are kept for five years for advertising measurement.",
-  "Precise location and the contact list are shared with business partners for product offers.",
-];
-
 /** Calls the Next.js proxy, which holds the job secret. */
 async function runSimulation(): Promise<SimulateChangeResponse> {
   try {
@@ -55,21 +48,7 @@ export function DemoPanel() {
   return (
     <div>
       <div className="mb-5 rounded-xl border border-[#f4e2b3] bg-[#fff8e8] px-4 py-3 text-[11px] leading-relaxed text-[#926b26] dark:border-[#5a4827] dark:bg-[#2e2718] dark:text-[#efd08a]">
-        <p>
-          <strong>What this check does.</strong> The previous version is a hardcoded
-          copy of WhatsApp&apos;s privacy policy, with extra sample clauses that
-          WhatsApp did not publish. The current version is fetched live from
-          whatsapp.com when you run the check. That is the same order as a real
-          tracked change: saved previous text, then the policy fetched now. The
-          sample clauses are only in the previous copy, so the report shows them
-          as removed. Nothing is saved, and this is not a real WhatsApp policy
-          update.
-        </p>
-        <ul className="mt-2 list-disc space-y-1 pl-4">
-          {SAMPLE_CLAUSES.map((clause) => (
-            <li key={clause}>{clause}</li>
-          ))}
-        </ul>
+        A saved WhatsApp policy with extra sample clauses is compared with the live policy. The result is not saved.
       </div>
 
       <div className="ph-card mb-5">
@@ -96,12 +75,6 @@ export function DemoPanel() {
             <span className="text-[10px] text-[var(--ph-muted)]">Current version</span>
             <strong className="mt-1 block text-xs">WhatsApp’s privacy policy, fetched now</strong>
           </div>
-        </div>
-
-        <h4 className="text-sm font-bold">Sample clauses added to the hardcoded copy</h4>
-        <div className="my-3 rounded-xl border border-[#e7ecf2] bg-[#f8fafc] p-4 text-xs leading-relaxed text-[#526078] dark:border-[#2b3b50] dark:bg-[#0c1625] dark:text-[#c0ccdc]">
-          These sentences are only in the previous hardcoded copy. They are not in
-          the live policy, so the report shows them as removed.
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -150,15 +123,12 @@ export function DemoPanel() {
         <ChangeReportView
           embedded
           company={WHATSAPP}
-          backHref="/demo"
           report={toChangeReport({
             summary: lastResult.summary,
             whatItMeansForYou: lastResult.whatItMeansForYou,
             importance: lastResult.importance,
             isSample: true,
             isSimulation: true,
-            fromLabel: "Hardcoded copy with sample clauses",
-            toLabel: "Live WhatsApp policy",
             fromExcerpt: lastResult.fromExcerpt,
             toExcerpt: lastResult.toExcerpt,
             removedSpan: lastResult.removedSpan,

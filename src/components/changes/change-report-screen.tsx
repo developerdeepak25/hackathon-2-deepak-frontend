@@ -12,11 +12,9 @@ import { ChangeReportView, toChangeReport } from "./change-report-view";
 export function ChangeReportScreen({
   company,
   changeId,
-  backHref,
 }: {
   company: CompanyMeta;
   changeId: string;
-  backHref: string;
 }) {
   const query = useChangeDetail(company.slug, changeId);
 
@@ -46,7 +44,6 @@ export function ChangeReportScreen({
   return (
     <ChangeReportView
       company={company}
-      backHref={backHref}
       report={toChangeReport({
         summary: change.summary,
         whatItMeansForYou: change.whatItMeansForYou,
@@ -60,6 +57,7 @@ export function ChangeReportScreen({
         tags: change.tags,
         changedSections: change.changedSections,
         aiStatus: change.aiStatus,
+        detectedAt: change.detectedAt,
       })}
     />
   );

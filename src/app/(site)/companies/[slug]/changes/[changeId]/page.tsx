@@ -33,11 +33,7 @@ export default async function ChangeReportPage({
           <span>Change report</span>
         </nav>
       </div>
-      <ChangeReportScreen
-        company={company}
-        changeId={changeId}
-        backHref={backHref}
-      />
+      <ChangeReportScreen company={company} changeId={changeId} />
     </>
   );
 }
