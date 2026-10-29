@@ -35,7 +35,7 @@ export function Topbar() {
   const { mode, toggle } = useThemeToggle();
 
   return (
-    <header className="sticky top-0 z-50 flex h-[68px] items-center gap-3 border-b border-[var(--ph-line)] bg-[var(--ph-surface)]/90 px-4 backdrop-blur-lg md:h-[78px] md:gap-7 md:px-[max(26px,calc((100vw-1240px)/2))] dark:bg-[#0a111e]/90">
+    <header className="ph-topbar sticky top-0 z-50 flex h-[68px] items-center gap-3 border-b border-[var(--ph-line)] bg-[var(--ph-surface)]/90 px-4 backdrop-blur-lg md:h-[78px] md:gap-7 md:px-[max(26px,calc((100vw-1240px)/2))] dark:bg-[#0a111e]/90">
       <Link
         href="/"
         className="flex min-w-0 items-center gap-2.5 md:min-w-[180px]"

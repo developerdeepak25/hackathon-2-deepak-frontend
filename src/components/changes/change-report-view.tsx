@@ -80,8 +80,9 @@ export function ChangeReportView({
   const [stacked, setStacked] = useState(false);
 
   return (
-    <div className={embedded ? undefined : "ph-container pb-16"}>
-      <div className="relative mb-5 overflow-hidden rounded-[22px] bg-[var(--ph-navy)] px-6 py-6 text-white dark:border dark:border-[#2b3b50] dark:bg-[#111d2f]">
+    <div className={cn("ph-change-report", embedded && "ph-change-report-embedded")}>
+      <div className={embedded ? "pb-16" : "ph-container pb-16"}>
+      <div className="ph-report-cover relative mb-5 overflow-hidden rounded-[22px] bg-[var(--ph-navy)] px-6 py-6 text-white dark:border dark:border-[#2b3b50] dark:bg-[#111d2f]">
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <CompanyLogo abbr={company.abbr} variant={company.logo} size="sm" />
@@ -171,6 +172,7 @@ export function ChangeReportView({
             empty="Nothing was added."
           />
         </div>
+      </div>
       </div>
     </div>
   );

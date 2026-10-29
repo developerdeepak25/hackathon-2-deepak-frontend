@@ -18,7 +18,7 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="ph-section-tight pb-8 pt-10 md:pt-12">
+    <div className="ph-page-header ph-section-tight pb-8 pt-10 md:pt-12">
       <div className="ph-container">
         {breadcrumb && breadcrumb.length > 0 && (
           <nav

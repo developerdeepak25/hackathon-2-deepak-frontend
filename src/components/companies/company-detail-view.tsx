@@ -25,21 +25,23 @@ export function CompanyDetailView({ company }: { company: CompanyMeta }) {
 
   return (
     <>
-      <div className="ph-container -mt-2 pb-6">
-        <div className="flex flex-wrap items-center gap-4">
-          <CompanyLogo abbr={company.abbr} variant={company.logo} size="lg" />
-          <div className="min-w-[180px] flex-1">
-            <span className="ph-eyebrow">{formatCategory(company.category)}</span>
-            <h1 className="text-4xl font-extrabold tracking-tight">{company.name}</h1>
-            <p className="text-xs text-[var(--ph-muted)]">Policy record</p>
+      <section className="ph-record-hero">
+        <div className="ph-container">
+          <div className="flex flex-wrap items-center gap-4">
+            <CompanyLogo abbr={company.abbr} variant={company.logo} size="lg" />
+            <div className="min-w-[180px] flex-1">
+              <span className="ph-eyebrow">{formatCategory(company.category)}</span>
+              <h1 className="text-4xl font-extrabold tracking-tight">{company.name}</h1>
+              <p className="text-xs text-[var(--ph-muted)]">Policy record</p>
+            </div>
+            <PhButton href="/companies" variant="secondary">
+              All companies
+            </PhButton>
           </div>
-          <PhButton href="/companies" variant="secondary">
-            All companies
-          </PhButton>
         </div>
-      </div>
+      </section>
 
-      <div className="ph-container pb-16">
+      <div className="ph-container ph-record-content pb-16">
         {query.isPending ? (
           <div className="space-y-4">
             <ShimmerCards />
@@ -94,7 +96,7 @@ function TimelineBody({
 
   return (
     <>
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="ph-record-stats mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="ph-card">
           <div className="text-xs text-[var(--ph-muted)]">Stored versions</div>
           <div className="mt-3 text-2xl font-extrabold">{versions.length}</div>
@@ -121,7 +123,7 @@ function TimelineBody({
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1.5fr_0.8fr]">
+      <div className="ph-record-columns grid gap-5 lg:grid-cols-[1.5fr_0.8fr]">
         <div className="space-y-5">
           <div className="ph-card">
             <h3 className="text-lg font-bold">Policy source</h3>
@@ -145,7 +147,7 @@ function TimelineBody({
                 description="This company has not been checked, or the first fetch has not been saved."
               />
             ) : (
-              <div className="space-y-4">
+              <div className="ph-record-timeline space-y-4">
                 {versions.map((version, index) => (
                   <div key={version.id} className="grid grid-cols-[26px_1fr] gap-3">
                     <div

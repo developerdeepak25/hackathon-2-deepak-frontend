@@ -19,9 +19,9 @@ export default async function ChangeReportPage({
   const backHref = slug === "test-company" ? "/demo" : `/companies/${slug}`;
 
   return (
-    <>
+    <div className="ph-report-page">
       <div className="ph-container pt-10 pb-4">
-        <nav className="text-[11px] text-[#8390a2]" aria-label="Breadcrumb">
+        <nav className="ph-report-breadcrumb text-[11px] text-[#8390a2]" aria-label="Breadcrumb">
           <Link href="/companies" className="hover:text-[var(--ph-blue)]">
             Companies
           </Link>
@@ -34,6 +34,6 @@ export default async function ChangeReportPage({
         </nav>
       </div>
       <ChangeReportScreen company={company} changeId={changeId} />
-    </>
+    </div>
   );
 }

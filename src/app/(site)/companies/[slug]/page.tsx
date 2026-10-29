@@ -17,9 +17,9 @@ export default async function CompanyPage({
   if (!company) notFound();
 
   return (
-    <>
+    <div className="ph-record-page">
       <div className="ph-container pt-10">
-        <nav className="mb-2 text-[11px] text-[#8390a2]" aria-label="Breadcrumb">
+        <nav className="ph-record-breadcrumb mb-2 text-[11px] text-[#8390a2]" aria-label="Breadcrumb">
           <Link href="/companies" className="hover:text-[var(--ph-blue)]">
             ← All companies
           </Link>
@@ -28,6 +28,6 @@ export default async function CompanyPage({
         </nav>
       </div>
       <CompanyDetailView company={company} />
-    </>
+    </div>
   );
 }
