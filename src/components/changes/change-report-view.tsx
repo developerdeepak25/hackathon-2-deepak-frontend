@@ -44,6 +44,8 @@ export function toChangeReport(input: {
   tags: string[];
   changedSections: string[];
   aiStatus: AiStatus;
+  fromLabel?: string;
+  toLabel?: string;
 }): ChangeReportData {
   return {
     title: input.summary,
@@ -52,8 +54,8 @@ export function toChangeReport(input: {
     importance: input.importance,
     isSample: input.isSample,
     isSimulation: input.isSimulation,
-    fromLabel: "Previous",
-    toLabel: "Current",
+    fromLabel: input.fromLabel ?? "Previous",
+    toLabel: input.toLabel ?? "Current",
     oldExcerpt: input.fromExcerpt,
     newExcerpt: input.toExcerpt,
     removedSpan: input.removedSpan,
