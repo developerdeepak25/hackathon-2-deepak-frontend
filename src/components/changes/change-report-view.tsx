@@ -27,7 +27,6 @@ export interface ChangeReportData {
   removedSpan: string;
   addedSpan: string;
   tags: string[];
-  changedSections: string[];
   detectedAt: string | null;
   aiStatus: AiStatus;
 }
@@ -44,7 +43,6 @@ export function toChangeReport(input: {
   removedSpan: string;
   addedSpan: string;
   tags: string[];
-  changedSections: string[];
   aiStatus: AiStatus;
   detectedAt?: string | null;
   fromLabel?: string;
@@ -64,7 +62,6 @@ export function toChangeReport(input: {
     removedSpan: input.removedSpan,
     addedSpan: input.addedSpan,
     tags: input.tags,
-    changedSections: input.changedSections,
     detectedAt: input.detectedAt ?? null,
     aiStatus: input.aiStatus,
   };
@@ -81,10 +78,6 @@ export function ChangeReportView({
   embedded?: boolean;
 }) {
   const [stacked, setStacked] = useState(false);
-  const labels = [
-    ...report.tags,
-    ...report.changedSections.filter((section) => !report.tags.includes(section)),
-  ];
 
   return (
     <div className={embedded ? undefined : "ph-container pb-16"}>
@@ -99,7 +92,7 @@ export function ChangeReportView({
           </div>
           <ImportancePill importance={report.importance} />
         </div>
-        <ChangeTags tags={labels} onDark className="relative z-10 mt-3" />
+        <ChangeTags tags={report.tags} onDark className="relative z-10 mt-3" />
         {report.detectedAt ? (
           <p className="relative z-10 mt-3 text-xs text-[#aeb9c9]">
             Detected {formatWhen(report.detectedAt)}
@@ -167,13 +160,13 @@ export function ChangeReportView({
         >
           <DiffPanel
             label={report.fromLabel}
-            text={report.removedSpan}
+            text={panelText(report.removedSpan, report.oldExcerpt, report.newExcerpt, "removed")}
             tone="removed"
             empty="Nothing was removed."
           />
           <DiffPanel
             label={report.toLabel}
-            text={report.addedSpan}
+            text={panelText(report.addedSpan, report.oldExcerpt, report.newExcerpt, "added")}
             tone="added"
             empty="Nothing was added."
           />
@@ -181,6 +174,52 @@ export function ChangeReportView({
       </div>
     </div>
   );
+}
+
+function splitBlocks(text: string): string[] {
+  return text
+    .split(/\n\n+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+}
+
+function isCompleteSentence(sentence: string): boolean {
+  const words = sentence.split(/\s+/);
+  return words.length >= 6 && /[.!?]["']?$/.test(sentence);
+}
+
+function usefulSentences(text: string): string[] {
+  return text
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(isCompleteSentence);
+}
+
+function sentenceKey(sentence: string): string {
+  return sentence.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+/** Uses the API sentences, or rebuilds them when the span is a joined word diff. */
+function panelText(
+  span: string,
+  previous: string,
+  current: string,
+  side: "removed" | "added",
+): string {
+  const blocks = splitBlocks(span);
+  if (blocks.length === 0) {
+    return "";
+  }
+  if (blocks.every(isCompleteSentence)) {
+    return blocks.join("\n\n");
+  }
+  const source = usefulSentences(side === "removed" ? previous : current);
+  const other = new Set(usefulSentences(side === "removed" ? current : previous).map(sentenceKey));
+  return source
+    .filter((sentence) => !other.has(sentenceKey(sentence)))
+    .slice(0, 4)
+    .join("\n\n");
 }
 
 function DiffPanel({

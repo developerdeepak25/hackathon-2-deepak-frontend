@@ -55,7 +55,6 @@ export function ChangeReportScreen({
         removedSpan: change.removedSpan,
         addedSpan: change.addedSpan,
         tags: change.tags,
-        changedSections: change.changedSections,
         aiStatus: change.aiStatus,
         detectedAt: change.detectedAt,
       })}

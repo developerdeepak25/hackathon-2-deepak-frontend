@@ -134,7 +134,6 @@ export function DemoPanel() {
             removedSpan: lastResult.removedSpan,
             addedSpan: lastResult.addedSpan,
             tags: lastResult.tags,
-            changedSections: lastResult.changedSections,
             aiStatus: lastResult.aiStatus,
           })}
         />
