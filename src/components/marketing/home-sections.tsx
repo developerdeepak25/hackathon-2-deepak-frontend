@@ -356,13 +356,13 @@ export function CaseStudiesSection() {
   const cases = [
     {
       year: "2021",
-      name: "WhatsApp",
-      text: "Policy changes around data sharing brought questions about what information was shared and how users understood the updated terms.",
+      name: "TikTok",
+      text: "TikTok updated its U.S. Privacy Policy to mention the potential collection of biometric identifiers, including faceprints and voiceprints, from user content.",
     },
     {
       year: "2023",
       name: "Zoom",
-      text: "Questions around customer content and AI-related terms highlighted how quickly policy wording can become a public concern.",
+      text: "Updated terms raised concerns about using customer content for AI training. Public backlash in August 2023 prompted Zoom to clarify its policy.",
     },
   ];
   return (
