@@ -30,20 +30,55 @@ export interface ChangeReportData {
   aiStatus: AiStatus;
 }
 
+/** Maps API change fields into the report layout used by stored changes and the demo. */
+export function toChangeReport(input: {
+  summary: string;
+  whatItMeansForYou: string;
+  importance: Importance;
+  isSample: boolean;
+  isSimulation: boolean;
+  fromExcerpt: string;
+  toExcerpt: string;
+  removedSpan: string;
+  addedSpan: string;
+  tags: string[];
+  changedSections: string[];
+  aiStatus: AiStatus;
+}): ChangeReportData {
+  return {
+    title: input.summary,
+    summary: input.summary,
+    whatItMeans: input.whatItMeansForYou,
+    importance: input.importance,
+    isSample: input.isSample,
+    isSimulation: input.isSimulation,
+    fromLabel: "Previous",
+    toLabel: "Current",
+    oldExcerpt: input.fromExcerpt,
+    newExcerpt: input.toExcerpt,
+    removedSpan: input.removedSpan,
+    addedSpan: input.addedSpan,
+    tags: input.tags.length > 0 ? input.tags : input.changedSections,
+    aiStatus: input.aiStatus,
+  };
+}
+
 /** Renders the navy report header and diff panels from the prototype. */
 export function ChangeReportView({
   company,
   report,
   backHref,
+  embedded = false,
 }: {
   company: CompanyMeta;
   report: ChangeReportData;
   backHref: string;
+  embedded?: boolean;
 }) {
   const [stacked, setStacked] = useState(false);
 
   return (
-    <div className="ph-container pb-16">
+    <div className={embedded ? undefined : "ph-container pb-16"}>
       <div className="relative mb-5 overflow-hidden rounded-[22px] bg-[var(--ph-navy)] px-6 py-7 text-white dark:border dark:border-[#2b3b50] dark:bg-[#111d2f]">
         <div className="relative z-10">
           <div className="flex flex-wrap items-center gap-2">

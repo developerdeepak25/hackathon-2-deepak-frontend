@@ -7,7 +7,7 @@
 import type { CompanyMeta } from "@/content/companies";
 import { QueryError, Shimmer } from "@/components/shared/query-state";
 import { useChangeDetail } from "@/lib/query/hooks";
-import { ChangeReportView } from "./change-report-view";
+import { ChangeReportView, toChangeReport } from "./change-report-view";
 
 export function ChangeReportScreen({
   company,
@@ -47,22 +47,20 @@ export function ChangeReportScreen({
     <ChangeReportView
       company={company}
       backHref={backHref}
-      report={{
-        title: change.summary,
+      report={toChangeReport({
         summary: change.summary,
-        whatItMeans: change.whatItMeansForYou,
+        whatItMeansForYou: change.whatItMeansForYou,
         importance: change.importance,
         isSample: change.isSample,
         isSimulation: company.slug === "test-company",
-        fromLabel: "Previous",
-        toLabel: "Current",
-        oldExcerpt: change.fromExcerpt,
-        newExcerpt: change.toExcerpt,
+        fromExcerpt: change.fromExcerpt,
+        toExcerpt: change.toExcerpt,
         removedSpan: change.removedSpan,
         addedSpan: change.addedSpan,
-        tags: change.tags.length > 0 ? change.tags : change.changedSections,
+        tags: change.tags,
+        changedSections: change.changedSections,
         aiStatus: change.aiStatus,
-      }}
+      })}
     />
   );
 }

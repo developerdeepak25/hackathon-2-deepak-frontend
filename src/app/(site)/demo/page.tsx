@@ -15,9 +15,9 @@ export default function DemoPage() {
       />
       <div className="ph-container pb-16">
         <div className="mb-5 rounded-xl border border-[#f4e2b3] bg-[#fff8e8] px-4 py-3 text-[11px] text-[#926b26] dark:border-[#5a4827] dark:bg-[#2e2718] dark:text-[#efd08a]">
-          <strong>Simulation mode:</strong> Uses predefined prior policy text and
-          will fetch live policy text through the API in the next milestone. It
-          does not modify real company tracking state.
+          <strong>Simulation mode:</strong> Compares a predefined earlier policy with
+          a live fetch and shows the same change report as a tracked company. The
+          result is not saved.
         </div>
         <DemoPanel />
       </div>

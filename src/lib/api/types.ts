@@ -101,7 +101,6 @@ export interface SimulateChangeResponse {
   isSample: true;
   aiStatus: AiStatus;
   aiNotice: string | null;
-  changeId: string;
   summary: string;
   whatItMeansForYou: string;
   importance: Importance;

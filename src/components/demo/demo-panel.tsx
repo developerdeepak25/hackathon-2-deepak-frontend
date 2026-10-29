@@ -1,20 +1,18 @@
 "use client";
 
 /**
- * Demo panel: one live simulated check through the server proxy.
+ * Demo panel: one live simulated check, rendered with the same report as a stored change.
  */
 
-import Link from "next/link";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { GitCompare, Play, RotateCcw } from "lucide-react";
-import { TEST_COMPANY } from "@/content/companies";
-import { ImportancePill } from "@/components/shared/importance-pill";
+import { Play, RotateCcw } from "lucide-react";
+import { ChangeReportView, toChangeReport } from "@/components/changes/change-report-view";
 import { QueryError, Shimmer } from "@/components/shared/query-state";
 import { StatusPill } from "@/components/shared/status-pill";
+import { TEST_COMPANY } from "@/content/companies";
 import { toApiError } from "@/lib/api/client";
 import type { SimulateChangeResponse } from "@/lib/api/types";
-import { queryKeys } from "@/lib/query/keys";
 import { resetDemoSession, setDemoResult } from "@/store/demo-slice";
 import { pushToast } from "@/store/ui-slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -34,36 +32,19 @@ async function runSimulation(): Promise<SimulateChangeResponse> {
 
 export function DemoPanel() {
   const dispatch = useAppDispatch();
-  const queryClient = useQueryClient();
   const { checksRun, lastResult } = useAppSelector((s) => s.demo);
 
   const mutation = useMutation({
     mutationFn: runSimulation,
     onSuccess: (result) => {
-      dispatch(
-        setDemoResult({
-          summary: result.summary,
-          whatItMeans: result.whatItMeansForYou,
-          importance: result.importance,
-          oldExcerpt: result.fromExcerpt,
-          newExcerpt: result.toExcerpt,
-          removedSpan: result.removedSpan,
-          addedSpan: result.addedSpan,
-          changeId: result.changeId,
-          aiStatus: result.aiStatus,
-          aiNotice: result.aiNotice,
-        }),
-      );
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.companyTimeline("test-company"),
-      });
+      dispatch(setDemoResult(result));
       dispatch(pushToast("Simulated check complete."));
     },
   });
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-      <div className="ph-card">
+    <div>
+      <div className="ph-card mb-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <span className="ph-eyebrow">
@@ -118,77 +99,45 @@ export function DemoPanel() {
           </button>
         </div>
         <p className="mt-3 text-[11px] text-[var(--ph-muted)]">
-          Reset clears this screen. Sample rows already stored stay labeled as sample.
+          The result stays on this screen only. It is not saved as a tracked change.
         </p>
       </div>
 
-      <div className="ph-card">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-bold">Latest check result</h3>
-            <p className="text-xs text-[var(--ph-muted)]">
-              Appears here after a check completes
-            </p>
-          </div>
-          {lastResult ? (
-            <span className="ph-pill ph-pill-green">Complete</span>
-          ) : (
-            <span className="ph-pill ph-pill-neutral">Waiting</span>
-          )}
+      {mutation.isPending ? (
+        <div className="space-y-4">
+          <Shimmer className="h-48" />
+          <Shimmer className="h-64" />
         </div>
+      ) : null}
 
-        {mutation.isPending ? (
-          <div className="space-y-3">
-            <Shimmer className="h-8 w-40" />
-            <Shimmer className="h-24" />
-            <Shimmer className="h-20" />
-          </div>
-        ) : mutation.isError ? (
-          <QueryError
-            message={mutation.error.message}
-            onRetry={() => mutation.mutate()}
-          />
-        ) : lastResult ? (
-          <div className="rounded-2xl border border-[#cfe9d8] bg-[#f8fffa] p-4 dark:border-[#285440] dark:bg-[#10261f]">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-base font-bold">{lastResult.summary}</h3>
-              <ImportancePill importance={lastResult.importance} />
-            </div>
-            {lastResult.whatItMeans !== lastResult.aiNotice ? (
-              <p className="mt-2 text-xs text-[#5f7568] dark:text-[#b0d0bc]">
-                {lastResult.whatItMeans}
-              </p>
-            ) : null}
-            {lastResult.aiNotice ? (
-              <p className="mt-2 text-[11px] text-[#926b26]">{lastResult.aiNotice}</p>
-            ) : null}
-            <div className="mt-3 grid gap-2 md:grid-cols-2">
-              <div className="rounded-lg border border-[#e1efe5] bg-white p-3 text-[11px] dark:border-[#285440] dark:bg-[#0d1c18]">
-                <span className="text-[10px] text-[#809188]">Removed</span>
-                <p className="mt-1 leading-relaxed">{lastResult.removedSpan || "—"}</p>
-              </div>
-              <div className="rounded-lg border border-[#e1efe5] bg-white p-3 text-[11px] dark:border-[#285440] dark:bg-[#0d1c18]">
-                <span className="text-[10px] text-[#809188]">Added</span>
-                <p className="mt-1 leading-relaxed">{lastResult.addedSpan || "—"}</p>
-              </div>
-            </div>
-            <Link
-              href={`/companies/test-company/changes/${lastResult.changeId}`}
-              className="ph-link mt-4 text-xs"
-            >
-              Open full change report <span aria-hidden>→</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-[#d6dee8] bg-[#fafbfd] py-10 text-center dark:border-[#35465d] dark:bg-[#0e1827]">
-            <GitCompare className="mx-auto mb-3 h-8 w-8 text-[#4355cf]" />
-            <h3 className="text-base font-bold">Ready to compare</h3>
-            <p className="mx-auto mt-2 max-w-xs text-xs text-[var(--ph-muted)]">
-              Run a simulated check to fetch the live policy and compare it with the prior text.
-            </p>
-          </div>
-        )}
-      </div>
+      {mutation.isError ? (
+        <QueryError
+          message={mutation.error.message}
+          onRetry={() => mutation.mutate()}
+        />
+      ) : null}
+
+      {lastResult && !mutation.isPending ? (
+        <ChangeReportView
+          embedded
+          company={TEST_COMPANY}
+          backHref="/demo"
+          report={toChangeReport({
+            summary: lastResult.summary,
+            whatItMeansForYou: lastResult.whatItMeansForYou,
+            importance: lastResult.importance,
+            isSample: false,
+            isSimulation: false,
+            fromExcerpt: lastResult.fromExcerpt,
+            toExcerpt: lastResult.toExcerpt,
+            removedSpan: lastResult.removedSpan,
+            addedSpan: lastResult.addedSpan,
+            tags: lastResult.tags,
+            changedSections: lastResult.changedSections,
+            aiStatus: lastResult.aiStatus,
+          })}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,26 +1,13 @@
 /**
- * On-screen demo session. Reset clears this view only; stored sample rows stay in the API.
+ * On-screen demo session. Reset clears this view only. Simulations are not stored.
  */
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Importance } from "@/lib/api/types";
-
-export interface DemoResultPreview {
-  summary: string;
-  whatItMeans: string;
-  importance: Importance;
-  oldExcerpt: string;
-  newExcerpt: string;
-  removedSpan: string;
-  addedSpan: string;
-  changeId: string;
-  aiStatus: "ok" | "fallback";
-  aiNotice: string | null;
-}
+import type { SimulateChangeResponse } from "@/lib/api/types";
 
 export interface DemoState {
   checksRun: number;
-  lastResult: DemoResultPreview | null;
+  lastResult: SimulateChangeResponse | null;
   sessionReset: number;
 }
 
@@ -34,11 +21,11 @@ const demoSlice = createSlice({
   name: "demo",
   initialState,
   reducers: {
-    setDemoResult(state, action: PayloadAction<DemoResultPreview>) {
+    setDemoResult(state, action: PayloadAction<SimulateChangeResponse>) {
       state.lastResult = action.payload;
       state.checksRun += 1;
     },
-    /** Clears the visible demo session without implying backend sample rows were deleted. */
+    /** Clears the visible demo session. Nothing was written to the API. */
     resetDemoSession(state) {
       state.lastResult = null;
       state.sessionReset += 1;
